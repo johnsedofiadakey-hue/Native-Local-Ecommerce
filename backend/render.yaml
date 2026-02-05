@@ -1,0 +1,39 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: commerce-db
+    env: docker
+    plan: free
+    region: oregon
+    databases:
+      - name: commerce_platform
+        user: commerce_user
+
+  # Backend API
+  - type: web
+    name: commerce-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm run start:prod
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: commerce-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: SMS_ENABLED
+        value: false
+      - key: SMS_SENDER_ID
+        value: CommerceGH
+      - key: PAYSTACK_SECRET_KEY
+        value: sk_test_placeholder
