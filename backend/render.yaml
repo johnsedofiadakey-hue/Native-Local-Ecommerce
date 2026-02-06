@@ -1,20 +1,11 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: commerce-db
-    env: docker
-    plan: free
-    region: oregon
-    databases:
-      - name: commerce_platform
-        user: commerce_user
-
   # Backend API
   - type: web
     name: commerce-backend
     env: node
     region: oregon
     plan: free
+    rootDir: backend
     buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npx prisma migrate deploy && npm run start:prod
     healthCheckPath: /api/v1/health
